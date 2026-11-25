@@ -9,6 +9,7 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
   basePath,
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },   // app/layout.tsx가 style.css 주소에 붙임
   images: { unoptimized: true },
 };
 

@@ -7,6 +7,11 @@
 - 저장: 로그인 없이 이 브라우저에만 (캔버스 localStorage, 라이브러리 IndexedDB) · 파일로 저장/불러오기
 - 서버·DB·외부 서비스 없음
 
+## 파일 구성
+
+- 화면 스타일: `public/style.css` (색·다크 모드·손글씨 글꼴) — Tailwind 기본 스타일만 `app/globals.css`
+- 배포 결과(gh-pages 브랜치): 맨 위에 `index.html`과 `style.css`
+
 ## 실행
 
 ```
