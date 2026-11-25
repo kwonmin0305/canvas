@@ -168,7 +168,7 @@ export default function CanvasPage() {
 
                 <div className="h-px bg-border-light my-1.5" />
                 <a
-                  href="/licenses"
+                  href="licenses/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setSettingsOpen(false)}
