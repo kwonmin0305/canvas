@@ -56,14 +56,9 @@ body {
   --ui-panel: #ffffff;      /* 속성 패널 */
   --ui-accent-text: #4338ca;
   --ui-shadow: 0 6px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.08);
-  /* 로고 초승달 (배경 없는 모양 — components/MoonLogo) */
-  --moon-from: #6b6b6b;
-  --moon-to: #1a1a1a;
 }
 
 html.dark-mode {
-  --moon-from: #ffffff;
-  --moon-to: #9a9a9a;
   --bg-primary: #1e1e20;
   --bg-secondary: #111113;
   --bg-tertiary: #28282c;
