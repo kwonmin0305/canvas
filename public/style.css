@@ -67,7 +67,7 @@ a { color: inherit; }
 .page {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 48px 32px 32px;
+  padding: clamp(24px, 5vw, 48px) clamp(16px, 4vw, 32px) 24px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -79,12 +79,12 @@ a { color: inherit; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: clamp(20px, 3vw, 28px);
 }
 .top__title { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
 .top h1 {
   margin: 0;
-  font-size: 32px;
+  font-size: clamp(24px, 1.6vw + 18px, 32px);
   font-weight: 750;
   letter-spacing: -0.035em;
   line-height: 1.1;
@@ -224,12 +224,16 @@ html.dark-mode .seg__btn.is-on { background: var(--line-strong); }
 }
 .select select:hover { color: var(--text); }
 .select svg { position: absolute; right: 12px; width: 15px; height: 15px; pointer-events: none; color: var(--text-3); }
+.select .i-sort { display: none; }
+.select select option { color: var(--text); background: var(--surface); }
 
 /* ── 카드 보기 ────────────────────────────────────────── */
+/* 열 수는 너비에 맞춰 저절로 (카드 최소 230px) — 화면 크기마다 따로 정하지 않음 */
+.projects { container-type: inline-size; }
 .projects--grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+  gap: clamp(14px, 2vw, 20px);
 }
 
 .card {
@@ -324,7 +328,7 @@ html.dark-mode .seg__btn.is-on { background: var(--line-strong); }
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s cubic-bezier(.2,.8,.2,1);
 }
-.add-card:hover .add-card__plus { transform: scale(1.08) rotate(90deg); }
+.add-card:hover .add-card__plus { transform: scale(1.08); }
 .add-card__plus svg { width: 20px; height: 20px; stroke-width: 2; }
 
 /* ── 목록 보기 ────────────────────────────────────────── */
@@ -366,7 +370,9 @@ html.dark-mode .seg__btn.is-on { background: var(--line-strong); }
 .row:first-child { border-top: 0; }
 .row:hover { background: var(--surface-2); }
 .row .thumb { margin: 0; aspect-ratio: 16 / 10; border-radius: 8px; }
-.row__name { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row__name { min-width: 0; }
+.row__title { display: block; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row__sub { display: none; font-size: 12.5px; color: var(--text-3); }
 .row__date { font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 .row__tools { display: flex; justify-content: flex-end; }
 .list-head {
@@ -478,19 +484,40 @@ html.dark-mode .seg__btn.is-on { background: var(--line-strong); }
 .dialog__actions { display: flex; justify-content: flex-end; gap: 8px; }
 
 /* ── 좁은 화면 ────────────────────────────────────────── */
-@media (max-width: 720px) {
-  .page { padding: 28px 16px 24px; }
-  .top h1 { font-size: 26px; }
-  .top .btn--primary { padding: 0 14px; }
+/* ── 화면 크기별 ──────────────────────────────────────────
+   900px 아래: 검색 칸이 한 줄을 다 쓰고, 필터·정렬·보기는 다음 줄 양 끝에
+   600px 아래: 목록 보기는 날짜 칸 대신 이름 밑에 수정 시각
+   480px 아래: 버튼을 아이콘만 남겨 도구 줄이 두 줄을 넘지 않게
+   카드 칸 수는 위 .projects--grid가 너비에 맞춰 알아서 정함 */
+@media (max-width: 900px) {
   .search { flex-basis: 100%; max-width: none; }
-  .toolbar__end { margin-left: 0; }
-  .projects--grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-  .row, .list-head { grid-template-columns: 72px minmax(0, 1fr) 72px; }
+  .row, .list-head { grid-template-columns: 88px minmax(0, 1fr) 120px 72px; }
+  .row__date--created, .list-head span:nth-child(3) { display: none; }
+}
+@media (max-width: 600px) {
+  .row, .list-head { grid-template-columns: 64px minmax(0, 1fr) 72px; gap: 12px; }
+  .add-row { gap: 12px; }
+  .add-row .add-card__plus { width: 64px; }
   .row__date, .list-head span:nth-child(n+2) { display: none; }
-  .foot { flex-direction: column; }
+  .row__sub { display: block; }
+  .foot { flex-direction: column; gap: 6px; }
 }
 @media (max-width: 480px) {
-  .projects--grid { grid-template-columns: 1fr; }
+  .btn__text { display: none; }
+  #new-btn { width: 40px; padding: 0; justify-content: center; }
+  .toolbar { gap: 8px; }
+  .toolbar__end { gap: 8px; }
+  .seg[role="tablist"] { flex: 1; min-width: 0; }
+  .seg[role="tablist"] .seg__btn { flex: 1; justify-content: center; padding: 0 8px; }
+  .select select { width: 40px; padding: 0; color: transparent; }
+  .select .i-chevron { display: none; }
+  .select .i-sort { display: block; right: 50%; transform: translateX(50%); color: var(--text-2); }
+}
+/* 카드가 한 줄에 하나뿐일 때: 새 프로젝트 카드는 낮은 띠로 */
+@container (max-width: 473px) {
+  .add-card { flex-direction: row; justify-content: flex-start; min-height: 64px; padding: 0 16px; gap: 12px; }
+  .add-card__plus { width: 36px; height: 36px; }
+  .add-card__plus svg { width: 16px; height: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
