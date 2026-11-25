@@ -121,7 +121,7 @@ export interface NodeData {
   drawingColor?:  string;                    // ← 선 색상
   drawingWidth?:  number;                    // ← 선 두께
   // 이미지 전용
-  imageUrl?:      string;                    // ← data URL (원본 Course 파일이면 https 주소일 수 있음)
+  imageUrl?:      string;                    // ← data URL (https 주소일 수도 있음)
   // 세부 속성 (속성 패널 "세부" — 사각형·원)
   shadow?:        number;                    // ← 그림자 0 없음 · 1 약하게 · 2 보통 · 3 강하게
   textPadding?:   number;                    // ← 도형 안 글씨의 안쪽 여백 (px, 없으면 도형별 기본값)

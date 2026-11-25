@@ -2197,7 +2197,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
         'textarea, select, input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=color])'));
 
     // 캔버스에서 복사했다는 표시 (밖에 붙여넣을 때는 보이지 않는 형식)
-    const NODES_MIME = 'application/x-vibestructure-nodes';
+    const NODES_MIME = 'application/x-web-canvas-nodes';
 
     // 이미지 주소 → PNG (시스템 클립보드는 PNG만 받음)
     const toPngBlob = (src: string) => new Promise<Blob>((resolve, reject) => {

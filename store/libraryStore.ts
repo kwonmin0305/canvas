@@ -11,23 +11,10 @@ import { idbGet, idbSet } from '@/utils/idb';
 import type { LibraryItem } from '@/utils/library';
 
 const IDB_KEY      = 'library-items';
-const OLD_LS_KEY   = 'course-library-v1';   // 처음 만든 localStorage 버전 — 남아 있으면 옮김
 
 // ── 브라우저(비로그인) 보관 ─────────────────────────────────
 const loadLocal = async (): Promise<LibraryItem[]> => {
-  let items: LibraryItem[] = [];
-  try { items = (await idbGet<LibraryItem[]>(IDB_KEY)) ?? []; } catch { /* IndexedDB 불가 */ }
-  // 예전 localStorage 항목 합치기 (한 번만)
-  try {
-    const raw = localStorage.getItem(OLD_LS_KEY);
-    if (raw) {
-      const old = JSON.parse(raw) as LibraryItem[];
-      items = [...items, ...old.filter((o) => !items.some((it) => it.id === o.id))];
-      await idbSet(IDB_KEY, items);
-      localStorage.removeItem(OLD_LS_KEY);
-    }
-  } catch { /* 무시 */ }
-  return items;
+  try { return (await idbGet<LibraryItem[]>(IDB_KEY)) ?? []; } catch { return []; /* IndexedDB 불가 */ }
 };
 
 const saveLocal = async (items: LibraryItem[]) => {

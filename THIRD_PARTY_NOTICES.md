@@ -4,8 +4,7 @@ Web Canvas가 쓰는 남의 폰트·아이콘·라이브러리와 그 조건을 
 앱 안의 `/licenses` 페이지(`app/licenses/page.tsx`, 데이터는 `constants/thirdParty.ts`)가 같은 내용을 보여 준다.
 
 > 새 폰트·아이콘·라이브러리를 넣으면 이 문서와 `constants/thirdParty.ts`를 같이 고친다.
-> 원본 Course(vibestructure)의 고지에서 이 복제본에 실제로 들어 있는 것만 남김 — 2026-11-25
-> Web Canvas는 외부 서비스(로그인·AI·통계 등)를 쓰지 않는다. 그래서 원본의 "외부 서비스" 절은 뺐다.
+> Web Canvas는 외부 서비스(로그인·AI·통계 등)를 쓰지 않는다.
 
 ---
 

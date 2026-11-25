@@ -10,7 +10,7 @@ import { FONTS, ICONS, LIBRARIES, LICENSE_TEXT, TRADEMARK_NOTICE, type ThirdPart
 
 export const metadata: Metadata = { title: '오픈소스 라이선스' };
 
-const t = (s: string) => s;   // 한국어만 씀 (원본의 영어 번역 자리)
+const t = (s: string) => s;   // 한국어만 씀
 
 const Section = ({ title, items, t }: { title: string; items: ThirdPartyItem[]; t: (s: string) => string }) => (
   <section style={{ marginTop: 36 }}>

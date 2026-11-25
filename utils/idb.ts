@@ -4,7 +4,7 @@
 // localStorage(약 5MB)에 넣기엔 큰 데이터(이미지가 든 라이브러리 등)용
 // ═══════════════════════════════════════════════════════════
 
-const DB_NAME = 'course';
+const DB_NAME = 'web-canvas';
 const STORE   = 'kv';
 
 let dbPromise: Promise<IDBDatabase> | null = null;

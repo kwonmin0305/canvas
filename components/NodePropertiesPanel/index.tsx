@@ -1980,7 +1980,7 @@ export function NodePropertiesPanel() {
 
   const selectedDocElement = useCanvasStore(s => s.selectedDocElement);
   const labelFocusEdgeId   = useCanvasStore(s => s.labelFocusEdgeId);
-  const chatOffset = 0;   // 원본의 AI 채팅 패널 너비 자리 — 이 복제본엔 채팅 패널이 없음
+  const chatOffset = 0;   // 오른쪽에 붙는 다른 패널 너비 (지금은 없음)
 
   // 드래그 상태
   const [pos, setPos] = useState({ x: 12, y: 80 });

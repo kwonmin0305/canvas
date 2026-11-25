@@ -1,19 +1,17 @@
 // ═══════════════════════════════════════════════════════════
 // 📁 utils/canvasFile.ts
-// 캔버스를 내 컴퓨터에 파일(.course)로 저장 / 다시 불러오기
+// 캔버스를 내 컴퓨터에 파일(.wcanvas)로 저장 / 다시 불러오기
 // 파일 내용은 JSON — { type, version, name, nodes, edges }
-//   예전 이름(.vibestructure, type 'vibestructure')으로 저장한 파일도 그대로 불러옴
 // ═══════════════════════════════════════════════════════════
 
 import type { AppNode, AppEdge } from '@/types';
 import { tr } from '@/lib/i18n';
 
-const FILE_TYPE    = 'course';
-const OLD_FILE_TYPE = 'vibestructure';
+const FILE_TYPE    = 'web-canvas';
 const FILE_VERSION = 1;
-export const FILE_EXT = '.course';
-// 불러오기 창에서 고를 수 있는 파일 (예전 확장자 포함)
-export const FILE_ACCEPT = '.course,.vibestructure,.json';
+export const FILE_EXT = '.wcanvas';
+// 불러오기 창에서 고를 수 있는 파일
+export const FILE_ACCEPT = '.wcanvas,.json';
 
 // 파일 이름에 쓸 수 없는 문자 제거
 const safeFileName = (name: string) =>
@@ -36,11 +34,11 @@ export const readCanvasFile = async (file: File): Promise<{ nodes: AppNode[]; ed
   try {
     data = JSON.parse(await file.text());
   } catch {
-    throw new Error(tr('파일을 읽을 수 없습니다. Web Canvas(또는 Course)에서 저장한 파일인지 확인해 주세요.', 'Could not read the file. Make sure it was saved from Course.'));
+    throw new Error(tr('파일을 읽을 수 없습니다. Web Canvas에서 저장한 파일인지 확인해 주세요.', 'Could not read the file. Make sure it was saved from Web Canvas.'));
   }
   const d = data as { type?: unknown; nodes?: unknown; edges?: unknown };
-  if ((d?.type !== FILE_TYPE && d?.type !== OLD_FILE_TYPE) || !Array.isArray(d.nodes) || !Array.isArray(d.edges)) {
-    throw new Error(tr('Course 캔버스 파일이 아닙니다.', 'This is not a Course canvas file.'));
+  if (d?.type !== FILE_TYPE || !Array.isArray(d.nodes) || !Array.isArray(d.edges)) {
+    throw new Error(tr('Web Canvas 파일이 아닙니다.', 'This is not a Web Canvas file.'));
   }
   return { nodes: d.nodes as AppNode[], edges: d.edges as AppEdge[] };
 };

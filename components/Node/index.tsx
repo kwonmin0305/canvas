@@ -565,7 +565,7 @@ const ArchitectureDiagramPage = React.memo(function ArchitectureDiagramPage({
     );
   }, [selectedElementId, editingElementId, templateContent, onElementClick, handleDoubleClick, handleDragStart, commitEdit]);
 
-  // 실제 Course CardShape 스타일 노드 (캔버스 CardShape 100×90과 동일)
+  // CardShape 스타일 노드 (캔버스 CardShape 100×90과 동일)
   const archCard = (id: string, nodeType: NodeData['type'], fallback: string, bg = '#242424') => {
     const o = ovr(id);
     return interactive(id,
@@ -2087,7 +2087,7 @@ const MusicStreamingDocPage = React.memo(function MusicStreamingDocPage({
               </div>
             )}
           </div>
-          <div style={{ fontSize:11, color: c.muted, paddingTop:6 }}>Course · v1.0</div>
+          <div style={{ fontSize:11, color: c.muted, paddingTop:6 }}>Web Canvas · v1.0</div>
         </div>
       ) : (
         <>
@@ -2208,7 +2208,7 @@ const MusicStreamingDocPage = React.memo(function MusicStreamingDocPage({
 
   const footer = (
     <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color: c.muted, paddingTop:'1.25rem', borderTop:`0.5px solid ${c.divider}` }}>
-      <span>Course · System Design</span>
+      <span>Web Canvas · System Design</span>
       <span>Music Streaming Platform — v1.0</span>
     </div>
   );

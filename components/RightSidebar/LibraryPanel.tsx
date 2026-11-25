@@ -8,7 +8,7 @@
 //   - 캔버스에서 요소를 고르고 [선택한 요소 추가] → 묶음으로 저장 (프레임은 안의 것까지)
 //   - 카드를 누르면 화면 가운데에, 끌어다 놓으면 놓은 자리에 들어감 (몇 번이든)
 //   - 이름 더블클릭으로 수정, 마우스를 올리면 파일로 저장·삭제
-//   - [가져오기]로 남이 준 라이브러리 파일(.courselib)을 내 라이브러리에 추가
+//   - [가져오기]로 남이 준 라이브러리 파일(.wclib)을 내 라이브러리에 추가
 //   - [모두 내보내기]로 내 라이브러리 전체를 파일 하나로
 // ═══════════════════════════════════════════════════════════
 
@@ -68,7 +68,7 @@ const downloadFile = (items: LibraryItem[], filename: string) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${filename.replace(/[\\/:*?"<>|]/g, '_')}.courselib`;
+  a.download = `${filename.replace(/[\\/:*?"<>|]/g, '_')}.wclib`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
@@ -154,7 +154,7 @@ export const LibraryPanel = () => {
         <input
           ref={fileRef}
           type="file"
-          accept=".courselib,application/json"
+          accept=".wclib,application/json"
           hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) importFile(f); e.target.value = ''; }}
         />

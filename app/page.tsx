@@ -4,7 +4,6 @@
 // 📁 app/page.tsx
 // 캔버스 화면 (첫 화면 = 캔버스)
 //
-//   원본 Course의 app/project/[id]/page.tsx에서 로그인·AI 채팅·프로젝트 목록을 뺀 것
 //   저장 위치: 이 브라우저의 localStorage만 (components/FlowArea) — 로그인·서버·DB 없음
 //
 //   오른쪽 위 버튼: 설정 · 저장(파일) · 테마

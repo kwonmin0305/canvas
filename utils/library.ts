@@ -4,7 +4,7 @@
 //
 // 저장 형식은 처음부터 '남에게 줄 수 있는 모양'
 //   - 항목 하나 = 이름 · 만든 사람 · 만든 때 · 요소(노드)와 연결선 묶음
-//   - 파일 = { type: 'course-library', version, items } → 그대로 내보내기·가져오기
+//   - 파일 = { type: 'web-canvas-library', version, items } → 그대로 내보내기·가져오기
 //   - 나중에 링크 공유·공개 갤러리도 같은 형식을 그대로 씀
 //   - 미리보기 = 실제 모습을 작게 찍은 webp (항목당 5~15KB). 없으면 요소 모양으로 대신 그림
 // ═══════════════════════════════════════════════════════════
@@ -14,9 +14,9 @@ import type { AppNode, AppEdge } from '@/types';
 import { withAllNodesRendered } from './renderAll';
 import { tr } from '@/lib/i18n';
 
-export const LIBRARY_FILE_TYPE = 'course-library';
+export const LIBRARY_FILE_TYPE = 'web-canvas-library';
 export const LIBRARY_VERSION   = 1;
-export const LIBRARY_DRAG_TYPE = 'application/x-course-library';   // 사이드바 → 캔버스 끌어놓기 데이터 종류
+export const LIBRARY_DRAG_TYPE = 'application/x-web-canvas-library';   // 사이드바 → 캔버스 끌어놓기 데이터 종류
 
 export type LibraryItem = {
   id:        string;
