@@ -1,4 +1,4 @@
-/* Tailwind 기본 스타일 — 화면 스타일은 public/style.css */
+/* Tailwind 기본 스타일 — 화면 스타일은 public/canvas.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -9,7 +9,9 @@
 
 ## 파일 구성
 
-- 화면 스타일: `public/style.css` (색·다크 모드·손글씨 글꼴) — Tailwind 기본 스타일만 `app/globals.css`
+- 프로젝트 목록(첫 화면): `public/index.html` · `public/style.css` · `public/app.js` — 순수 HTML·CSS·JS
+- 캔버스 화면: `app/board/page.tsx` (주소 `board/?id=<프로젝트>`), 스타일 `public/canvas.css` — Tailwind 기본 스타일만 `app/globals.css`
+- 둘 다 같은 localStorage 키를 씀 (`utils/projects.ts`, `public/app.js`)
 - 배포 결과(gh-pages 브랜치): 맨 위에 `index.html`과 `style.css`
 
 ## 실행

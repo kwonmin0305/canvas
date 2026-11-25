@@ -9,10 +9,9 @@ import { useCanvasStore }  from '@/store/canvasStore';
 import { downloadCanvasFile, readCanvasFile } from '@/utils/canvasFile';
 import type { AppNode, AppEdge } from '@/types';
 import { tr } from '@/lib/i18n';
+import { canvasKey, touchProject } from '@/utils/projects';
 
-// 캔버스를 저장하는 localStorage 키 (브라우저 하나에 캔버스 하나)
-//   저장 위치: 이 브라우저의 localStorage만 — 로그인·서버·DB 없음
-export const CANVAS_STORAGE_KEY = 'web-canvas-data';
+// 저장 위치: 이 브라우저의 localStorage만 (프로젝트마다 키 하나 — utils/projects.ts) — 로그인·서버·DB 없음
 
 // 자동 저장 디바운스 지연 시간 (밀리초)
 const AUTOSAVE_DELAY = 2000;
@@ -20,6 +19,8 @@ const AUTOSAVE_DELAY = 2000;
 type CanvasSnapshot = { nodes: AppNode[]; edges: AppEdge[] };
 
 interface FlowAreaProps {
+  projectId: string;
+  projectName: string;
   initialNodes: AppNode[];
   initialEdges: AppEdge[];
   rightCollapsed: boolean;
@@ -32,6 +33,8 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 // ReactFlowProvider + Canvas + RightSidebar를 함께 묶어
 // dynamic(ssr:false)로 로드 → Next.js HMR과 ReactFlow 스토어 충돌 방지
 export const FlowArea = ({
+  projectId,
+  projectName,
   initialNodes,
   initialEdges,
   rightCollapsed,
@@ -49,13 +52,14 @@ export const FlowArea = ({
   // ── 실제 저장 (localStorage) — await 없이 바로 끝나서 창이 닫히는 순간에도 안전
   const persist = useCallback(({ nodes, edges }: CanvasSnapshot) => {
     try {
-      localStorage.setItem(CANVAS_STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      localStorage.setItem(canvasKey(projectId), JSON.stringify({ nodes, edges }));
+      touchProject(projectId);
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch {
       setSaveStatus('error');   // 용량 초과(큰 이미지 등)·사생활 보호 모드
     }
-  }, []);
+  }, [projectId]);
 
   // ── 대기 중인 변경을 지금 바로 저장 ──────────────────────
   const flushSave = useCallback(() => {
@@ -124,7 +128,7 @@ export const FlowArea = ({
 
   const handleSaveFile = () => {
     const { nodes, edges } = latestRef.current;
-    downloadCanvasFile('web-canvas', nodes, edges);
+    downloadCanvasFile(projectName, nodes, edges);
     closeSaveDialog();
   };
 

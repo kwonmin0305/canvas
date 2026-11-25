@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>프로젝트</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <!-- 다크 모드를 골랐으면 그리기 전에 바로 적용 (캔버스 화면과 같은 저장 키) -->
+  <script>try{if(localStorage.getItem('web-canvas-theme')==='dark')document.documentElement.classList.add('dark-mode')}catch(e){}</script>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page">
+
+    <!-- 머리말: 제목 · 개수 · 테마 · 새 프로젝트 -->
+    <header class="top">
+      <div class="top__title">
+        <h1>프로젝트</h1>
+        <span class="count" id="count"></span>
+      </div>
+      <div class="top__actions">
+        <button class="icon-btn" id="theme-btn" type="button" title="테마 전환" aria-label="테마 전환">
+          <svg class="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+        </button>
+        <button class="btn btn--primary" id="new-btn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          새 프로젝트
+        </button>
+      </div>
+    </header>
+
+    <!-- 도구 줄: 검색 · 전체/즐겨찾기 · 정렬 · 보기 방식 -->
+    <div class="toolbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="search" placeholder="프로젝트 검색" autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+
+      <div class="seg" role="tablist" aria-label="보기 대상">
+        <button class="seg__btn is-on" data-filter="all" role="tab" type="button">전체</button>
+        <button class="seg__btn" data-filter="starred" role="tab" type="button">
+          <svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+          즐겨찾기
+        </button>
+      </div>
+
+      <div class="toolbar__end">
+        <label class="select">
+          <span class="sr-only">정렬</span>
+          <select id="sort">
+            <option value="updated">최근 수정순</option>
+            <option value="created">최근 만든순</option>
+            <option value="name">이름순</option>
+          </select>
+          <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </label>
+
+        <div class="seg seg--icons" aria-label="보기 방식">
+          <button class="seg__btn is-on" data-view="grid" type="button" title="카드로 보기" aria-label="카드로 보기">
+            <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+          </button>
+          <button class="seg__btn" data-view="list" type="button" title="목록으로 보기" aria-label="목록으로 보기">
+            <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 프로젝트 목록 (app.js가 채움) -->
+    <section id="projects" class="projects projects--grid" aria-live="polite"></section>
+
+    <!-- 비었을 때 -->
+    <div id="empty" class="empty" hidden>
+      <div class="empty__art" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="empty__title" id="empty-title">아직 프로젝트가 없어요</p>
+      <p class="empty__text" id="empty-text">새 프로젝트를 만들어 바로 그려 보세요.</p>
+      <button class="btn btn--primary" id="empty-new" type="button">새 프로젝트 만들기</button>
+    </div>
+
+    <footer class="foot">
+      <span>모든 프로젝트는 이 브라우저에만 저장됩니다.</span>
+      <a href="licenses/">오픈소스 라이선스</a>
+    </footer>
+  </main>
+
+  <!-- 카드의 ⋯ 메뉴 (하나를 돌려 씀) -->
+  <div class="menu" id="menu" role="menu" hidden>
+    <button type="button" data-act="open" role="menuitem">열기</button>
+    <button type="button" data-act="rename" role="menuitem">이름 바꾸기</button>
+    <button type="button" data-act="duplicate" role="menuitem">복제</button>
+    <hr>
+    <button type="button" data-act="delete" class="danger" role="menuitem">삭제</button>
+  </div>
+
+  <!-- 이름 입력 · 삭제 확인 창 -->
+  <dialog class="dialog" id="dialog">
+    <form method="dialog" id="dialog-form">
+      <h2 id="dialog-title"></h2>
+      <p id="dialog-text"></p>
+      <input id="dialog-input" type="text" maxlength="60" autocomplete="off">
+      <div class="dialog__actions">
+        <button class="btn btn--ghost" value="cancel" type="submit" formnovalidate>취소</button>
+        <button class="btn btn--primary" id="dialog-ok" value="ok" type="submit">확인</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

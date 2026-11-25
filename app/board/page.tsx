@@ -1,13 +1,15 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════
-// 📁 app/page.tsx
-// 캔버스 화면 (첫 화면 = 캔버스)
+// 📁 app/board/page.tsx
+// 캔버스 화면 — 주소: board/?id=<프로젝트 id> (프로젝트 목록은 public/index.html)
 //
-//   저장 위치: 이 브라우저의 localStorage만 (components/FlowArea) — 로그인·서버·DB 없음
+//   저장 위치: 이 브라우저의 localStorage만 (utils/projects.ts) — 로그인·서버·DB 없음
+//   없는 프로젝트 id면 목록으로 돌려보냄
 //
+//   왼쪽 위: 목록으로 돌아가기 + 프로젝트 이름
 //   오른쪽 위 버튼: 설정 · 저장(파일) · 테마
-//   심플 모드(설정에서 켬): 설정 버튼만 남기고 나머지와 왼쪽 위 이름을 숨김 — 브라우저에 기억
+//   심플 모드(설정에서 켬): 설정 버튼과 돌아가기 버튼만 남김 — 브라우저에 기억
 // ═══════════════════════════════════════════════════════════
 
 import dynamic from 'next/dynamic';
@@ -18,7 +20,7 @@ import { useSidebar }     from '@/hooks/useSidebar';
 import { useTheme }       from '@/hooks/useTheme';
 import { useCanvasStore } from '@/store/canvasStore';
 import { INITIAL_NODES }  from '@/utils/nodeData';
-import { CANVAS_STORAGE_KEY } from '@/components/FlowArea';
+import { canvasKey, findProject, type ProjectMeta } from '@/utils/projects';
 import type { AppNode, AppEdge } from '@/types';
 
 // 캔버스 영역 — SSR 끔 (React Flow는 브라우저 전용)
@@ -61,11 +63,17 @@ export default function CanvasPage() {
   }, []);
   const panelBeside = !sidebar.rightCollapsed && !isPhone;
 
-  // 저장된 캔버스 읽기 (없으면 인사 글상자 하나)
+  // 주소의 프로젝트 찾기 → 저장된 캔버스 읽기 (없으면 인사 글상자 하나)
+  const [project, setProject] = useState<ProjectMeta | null>(null);
   const [initial, setInitial] = useState<{ nodes: AppNode[]; edges: AppEdge[] } | null>(null);
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('id') ?? '';
+    const p = id ? findProject(id) : undefined;
+    if (!p) { window.location.replace('../'); return; }
+    setProject(p);
+    document.title = p.name;
     try {
-      const saved = localStorage.getItem(CANVAS_STORAGE_KEY);
+      const saved = localStorage.getItem(canvasKey(p.id));
       if (saved) {
         const { nodes, edges } = JSON.parse(saved);
         setInitial({ nodes: (nodes as AppNode[]) ?? INITIAL_NODES, edges: (edges as AppEdge[]) ?? [] });
@@ -100,23 +108,23 @@ export default function CanvasPage() {
     return () => document.removeEventListener('pointerdown', handler, true);
   }, [settingsOpen]);
 
-  if (!mounted || !initial) return null;
+  if (!mounted || !initial || !project) return null;
 
   return (
     <div className="bg-bg-primary transition-colors duration-300 flex flex-col w-screen h-screen overflow-hidden">
       <div className="flex-1 flex overflow-hidden relative">
 
-        {/* 왼쪽 위: 이름 (심플 모드면 숨김) */}
-        {!simpleMode && (
-          <div className="absolute top-[14px] left-[14px] z-[100] flex items-center gap-1.5 pointer-events-none">
-            <span
-              className="text-[16px] font-semibold tracking-[-0.04em] text-text-primary select-none"
-              style={{ fontFamily: '"Georgia", "Times New Roman", serif' }}
-            >
-              Web Canvas
+        {/* 왼쪽 위: 목록으로 + 프로젝트 이름 (심플 모드면 이름 숨김) */}
+        <div className="absolute top-[14px] left-[14px] z-[100] flex items-center gap-2">
+          <a href="../" className={`${iconBtnCls} no-underline`} title="프로젝트 목록">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </a>
+          {!simpleMode && (
+            <span className="text-[14px] font-semibold text-text-primary select-none truncate max-w-[40vw]">
+              {project.name}
             </span>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* 오른쪽 위: 버튼 모음 */}
         <div
@@ -167,7 +175,7 @@ export default function CanvasPage() {
 
                 <div className="h-px bg-border-light my-1.5" />
                 <a
-                  href="licenses/"
+                  href="../licenses/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setSettingsOpen(false)}
@@ -211,6 +219,8 @@ export default function CanvasPage() {
 
         {/* 실제 캔버스 — React Flow 기반 */}
         <FlowArea
+          projectId={project.id}
+          projectName={project.name}
           initialNodes={initial.nodes}
           initialEdges={initial.edges}
           rightCollapsed={sidebar.rightCollapsed}
