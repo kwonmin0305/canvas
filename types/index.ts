@@ -227,11 +227,6 @@ export interface ThemeMode {
   isDark: boolean;         // ← 다크모드 여부 (true/false)
 }
 
-export interface SidebarState {
-  leftCollapsed:  boolean; // ← 왼쪽 사이드바가 접혔는지 여부
-  rightCollapsed: boolean; // ← 오른쪽 사이드바가 접혔는지 여부
-}
-
 // ── 문서 템플릿 요소 스타일 ──────────────────────────────────
 export interface DocTemplateElementStyle {
   fontSize?:    number;

@@ -34,7 +34,7 @@ export const ungroupNodes = (nodes: AppNode[], ids: Set<string>): AppNode[] => {
   return nodes.map((n) => (gids.has(groupIdOf(n)) ? { ...n, data: { ...n.data, groupId: undefined } } : n));
 };
 
-// 복사·붙여넣기·라이브러리에서 꺼낼 때: 묶음 번호를 새로 매김 (원본과 복사본이 한 묶음이 되지 않게)
+// 복사·붙여넣기할 때: 묶음 번호를 새로 매김 (원본과 복사본이 한 묶음이 되지 않게)
 export const remapGroupIds = (nodes: AppNode[]): AppNode[] => {
   const map = new Map<string, string>();
   return nodes.map((n) => {

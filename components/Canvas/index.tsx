@@ -48,8 +48,6 @@ import { useCanvasStore, withLastFont } from '@/store/canvasStore';
 import type { AppNode, AppEdge, NodeShape, EdgeData } from '@/types';
 import { PAPER_SIZES, paperDims, type PaperSize } from '@/utils/paperSizes';
 import { slideOrder } from '@/utils/slides';
-import { instantiateLibraryItem, itemBounds, LIBRARY_DRAG_TYPE } from '@/utils/library';
-import { useLibraryStore } from '@/store/libraryStore';
 import { getNodesBounds, placeNodeCluster } from '@/utils/nodePlacement';
 import { prepareCanvasImage } from '@/utils/canvasImage';
 import { captureNodesImage } from '@/utils/captureNodes';
@@ -1906,24 +1904,10 @@ const CanvasToolbar = () => {
   );
 };
 
-// ── 사이드바 토글 시 fitView (ReactFlow 내부에서 useReactFlow 호출) ──
-const SidebarFitView = ({ rightCollapsed }: { rightCollapsed: boolean }) => {
-  const { fitView } = useReactFlow<AppNode>();
-  const isFirst = useRef(true);
-
-  useEffect(() => {
-    if (isFirst.current) { isFirst.current = false; return; }
-    setTimeout(() => fitView({ ..._FIT_VIEW_OPTIONS, duration: 300 }), 280);
-  }, [rightCollapsed, fitView]);
-
-  return null;
-};
-
 // ── 메인 캔버스 ──────────────────────────────────────────────
 interface CanvasProps {
   initialNodes: AppNode[];
   initialEdges: AppEdge[];
-  rightCollapsed: boolean;
   // 노드/엣지 변경 시 호출되는 콜백 (자동 저장용)
   onCanvasChange: (nodes: AppNode[], edges: AppEdge[]) => void;
 }
@@ -1985,7 +1969,7 @@ function GroupOutline() {
   );
 }
 
-export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasChange }: CanvasProps) => {
+export const Canvas = ({ initialNodes, initialEdges, onCanvasChange }: CanvasProps) => {
   // 0이면 화면에 보이는 요소만 그림, 사진 찍는 동안엔 1 이상 → 전부 그림
   const renderAllCount = useRenderAll((s) => s.count);
   // doc 컨테이너의 자식 텍스트 노드 제거 (Phase 1 구버전 데이터 호환 — "텍스트" 글상자 잔여물)
@@ -3225,27 +3209,6 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
   // 선 자체를 누르면 선 설정 — 라벨로 골랐던 표시는 지움
   const onEdgeClick = useCallback(() => setLabelFocusEdgeId(null), [setLabelFocusEdgeId]);
 
-  // ── 라이브러리 항목 끌어다 놓기 (오른쪽 사이드바 라이브러리 탭 → 캔버스) ──
-  const onLibraryDragOver = useCallback((e: React.DragEvent) => {
-    if (!e.dataTransfer.types.includes(LIBRARY_DRAG_TYPE)) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  }, []);
-
-  const onLibraryDrop = useCallback((e: React.DragEvent) => {
-    const itemId = e.dataTransfer.getData(LIBRARY_DRAG_TYPE);
-    const item = itemId && useLibraryStore.getState().items.find((it) => it.id === itemId);
-    const inst = rfInstanceRef.current;
-    if (!item || !inst || isLocked) return;
-    e.preventDefault();
-    // 놓은 자리가 묶음의 가운데가 되게
-    const p = inst.screenToFlowPosition({ x: e.clientX, y: e.clientY });
-    const { w, h } = itemBounds(item);
-    const { nodes: added, edges: addedEdges } = instantiateLibraryItem(item, { x: p.x - w / 2, y: p.y - h / 2 });
-    setNodes((prev) => placeFramesFirst([...(prev as AppNode[]).map((n) => (n.selected ? { ...n, selected: false } : n)), ...added]));
-    setEdges((prev) => [...prev, ...addedEdges]);
-  }, [isLocked, setNodes, setEdges]);
-
   // ── 드래그 마우스 핸들러 ─────────────────────────────────────
   // ── 묶음 (utils/group.ts) ────────────────────────────────────
   // 묶인 요소를 누르면 React Flow가 끌기를 시작하기 전에(캡처 단계) 묶음 전체를 먼저 선택 → 한 덩어리로 끌려감
@@ -3565,8 +3528,6 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
         panOnDrag={!isConnectMode && !drawTool}
         onPaneClick={onPaneClick}
         onEdgeClick={onEdgeClick}
-        onDragOver={onLibraryDragOver}
-        onDrop={onLibraryDrop}
         connectionMode={ConnectionMode.Loose}
         // 핸들을 끌 때 미리보기 선 — 고른 연결선 모양 그대로 (기본값은 곡선이라 꺾은선·직선에서도 곡선으로 보였음)
         connectionLineType={
@@ -3610,8 +3571,6 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
         {/* 묶음을 통째로 골랐을 때 감싸는 테두리 */}
         <GroupOutline />
 
-        {/* 사이드바 토글 fitView 처리 */}
-        <SidebarFitView rightCollapsed={rightCollapsed} />
 
         {/* 노드 속성 패널 */}
         <NodePropertiesPanel />

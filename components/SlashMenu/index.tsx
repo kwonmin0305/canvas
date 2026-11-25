@@ -17,7 +17,7 @@ import { newBlock } from '@/components/Node/Blocks';
 import {
   BASIC_SHAPES, TABLE_TEMPLATES, ARCH_CARDS, EXTERNAL_API_CARDS,
   basicNodeSize, buildBasicNode, templateNodeSize, buildTemplateNode, ARCH_NODE_SIZE, buildArchNode,
-} from '@/components/RightSidebar';
+} from './catalog';
 import type { AppNode, AppEdge } from '@/types';
 import { ENTITY, entityHeight, buildBlankEntity, buildErd } from '@/lib/erd';
 import { ERD_TEMPLATES } from '@/lib/erd/templates';

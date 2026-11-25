@@ -143,13 +143,3 @@ export const placeNodeCluster = (
     ...children,
   ];
 };
-
-export const placeSingleNode = (
-  node: AppNode,
-  existingNodes: AppNode[],
-  preferredTopLeft: Point,
-  options: PlacementOptions = {},
-): AppNode => {
-  const placed = placeNodeCluster([node], existingNodes, preferredTopLeft, options);
-  return placed[0] ?? node;
-};

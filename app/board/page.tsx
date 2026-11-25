@@ -16,7 +16,6 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { Map as MapIcon, Ruler, MoveVertical, Minimize2 } from 'lucide-react';
 
-import { useSidebar }     from '@/hooks/useSidebar';
 import { useTheme }       from '@/hooks/useTheme';
 import { useCanvasStore } from '@/store/canvasStore';
 import { INITIAL_NODES }  from '@/utils/nodeData';
@@ -50,18 +49,9 @@ const Toggle = ({ on }: { on: boolean }) => (
 const iconBtnCls = 'w-8 h-8 flex items-center justify-center bg-transparent border border-border-light rounded-lg cursor-pointer text-text-secondary transition-colors hover:bg-hover-bg hover:text-text-primary';
 
 export default function CanvasPage() {
-  const { sidebar, toggleRightSidebar, mounted } = useSidebar();
-
-  // 폰 화면(640px 이하) — 오른쪽 패널이 화면 전체를 덮어서 위쪽 버튼을 옆으로 밀지 않음
-  const [isPhone, setIsPhone] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 640px)');
-    const update = () => setIsPhone(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  const panelBeside = !sidebar.rightCollapsed && !isPhone;
+  // 브라우저에서만 그림 (localStorage를 읽어야 해서)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // 주소의 프로젝트 찾기 → 저장된 캔버스 읽기 (없으면 인사 글상자 하나)
   const [project, setProject] = useState<ProjectMeta | null>(null);
@@ -128,13 +118,7 @@ export default function CanvasPage() {
 
         {/* 오른쪽 위: 버튼 모음 */}
         <div
-          className="absolute top-[14px] z-[100] flex gap-1 items-center"
-          style={{
-            // 심플 모드 + 패널 접힘: 패널 열기 버튼(38px)이 맨 위 오른쪽으로 올라오므로 그 왼쪽에
-            right: !panelBeside ? (simpleMode ? 14 + 38 + 8 : 14) : 216 + 14,
-            top: simpleMode && !panelBeside ? 14 + 3 : 14,
-            transition: 'right 0.25s cubic-bezier(.4,0,.2,1)',
-          }}
+          className="absolute top-[14px] right-[14px] z-[100] flex gap-1 items-center"
         >
           {/* 설정 버튼 + 드롭다운 */}
           <div ref={settingsRef} className="relative">
@@ -223,8 +207,6 @@ export default function CanvasPage() {
           projectName={project.name}
           initialNodes={initial.nodes}
           initialEdges={initial.edges}
-          rightCollapsed={sidebar.rightCollapsed}
-          onToggleRight={toggleRightSidebar}
         />
       </div>
     </div>

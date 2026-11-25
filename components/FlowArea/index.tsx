@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Canvas }       from '@/components/Canvas';
-import { RightSidebar } from '@/components/RightSidebar';
 import { SaveDialog }   from '@/components/SaveDialog';
 import { useCanvasStore }  from '@/store/canvasStore';
 import { downloadCanvasFile, readCanvasFile } from '@/utils/canvasFile';
@@ -23,22 +22,18 @@ interface FlowAreaProps {
   projectName: string;
   initialNodes: AppNode[];
   initialEdges: AppEdge[];
-  rightCollapsed: boolean;
-  onToggleRight: () => void;
 }
 
 // 저장 상태 타입
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-// ReactFlowProvider + Canvas + RightSidebar를 함께 묶어
+// ReactFlowProvider + Canvas를 함께 묶어
 // dynamic(ssr:false)로 로드 → Next.js HMR과 ReactFlow 스토어 충돌 방지
 export const FlowArea = ({
   projectId,
   projectName,
   initialNodes,
   initialEdges,
-  rightCollapsed,
-  onToggleRight,
 }: FlowAreaProps) => {
   // ── 자동 저장 상태 ────────────────────────────────────────
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
@@ -172,12 +167,7 @@ export const FlowArea = ({
           key={loaded?.version ?? 0}
           initialNodes={loaded?.nodes ?? initialNodes}
           initialEdges={loaded?.edges ?? initialEdges}
-          rightCollapsed={rightCollapsed}
           onCanvasChange={handleCanvasChange}
-        />
-        <RightSidebar
-          collapsed={rightCollapsed}
-          onToggle={onToggleRight}
         />
       </ReactFlowProvider>
 
