@@ -143,7 +143,7 @@ html, body, #__next {
   filter: drop-shadow(0 0 4px rgba(129, 140, 248, 0.95));
 }
 
-/* ── AI가 만든 요소 등장 (utils/appearAnimation.ts가 요소마다 늦춰서 붙임) ── */
+/* ── 템플릿 요소 등장 (utils/appearAnimation.ts가 요소마다 늦춰서 붙임) ── */
 @keyframes aiAppear {
   from { opacity: 0; transform: translateY(10px) scale(0.985); filter: blur(2px); }
   to   { opacity: 1; transform: none; filter: none; }

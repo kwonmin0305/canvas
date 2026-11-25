@@ -134,7 +134,6 @@ export interface NodeData {
   mockupFit?:     'cover' | 'contain';       // ← 화면 채우기(기본) / 전체 보이기
   mockupShadow?:  boolean;                   // ← 그림자 (기본 켜짐)
   mockupOrientation?: 'portrait' | 'landscape'; // ← 세로(기본) / 가로
-  mockupFrom?:    string;                    // ← AI가 그린 목업: 이 화면 프레임(id)을 찍어 넣을 차례 (캔버스가 찍고 지움)
   imageSlot?:     boolean;                   // ← 와이어프레임 "이미지" 칸 — 사진을 넣을 수 있음 (utils/imageSlot.ts, 사진은 imageUrl)
   mockupZoom?:    number;                    // ← 화면 이미지 확대 % (100~300, 기본 100) — 이미지 칸도 같이 씀
   mockupPosX?:    number;                    // ← 화면 이미지 좌우 위치 % (기본 50)
@@ -251,24 +250,4 @@ export interface DocTemplateElementStyle {
 
 export interface DocTemplateContent {
   [elementId: string]: DocTemplateElementStyle;
-}
-
-// ── AI 계획 모드 ─────────────────────────────────────────────
-export interface PlanData {
-  nodes:       AppNode[];
-  edges:       AppEdge[];
-  explanation: string;
-  nodeCount:   number; // frame 제외한 표시용 카운트
-  edgeCount?:  number; // 수락·거부 후 nodes·edges를 비워도 표시용으로 남김
-}
-
-// ── 프로젝트 ────────────────────────────────────────────────
-// 사용자가 생성하는 프로젝트 하나를 나타내는 타입
-export interface Project {
-  id:           string; // ← 고유 식별자 (예: 'proj-1712345678-abc123')
-  name:         string; // ← 사용자가 지정한 프로젝트 이름
-  createdAt:    number; // ← 생성 시각 (Unix 밀리초, Date.now() 값)
-  updatedAt:    number; // ← 마지막 수정 시각 (캔버스 열 때마다 갱신)
-  colorSwatch:  string; // ← 썸네일·아바타 색상 (CSS hex 값, 예: '#3B82F6') — 사용자가 바꿀 수 있음
-  avatarText?:  string; // ← 아바타 동그라미 글자 (최대 2자). 없으면 이름 첫 글자
 }

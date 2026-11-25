@@ -51,7 +51,6 @@ import { slideOrder } from '@/utils/slides';
 import { instantiateLibraryItem, itemBounds, LIBRARY_DRAG_TYPE } from '@/utils/library';
 import { useLibraryStore } from '@/store/libraryStore';
 import { getNodesBounds, placeNodeCluster } from '@/utils/nodePlacement';
-import { clusterRow, rowTopLeft } from '@/utils/aiRows';
 import { prepareCanvasImage } from '@/utils/canvasImage';
 import { captureNodesImage } from '@/utils/captureNodes';
 import { withAllNodesRendered, useRenderAll } from '@/utils/renderAll';
@@ -216,7 +215,7 @@ function EdgeLabelBox({
     <EdgeLabelRenderer>
       <div
         className="nodrag nopan"
-        data-edge-label={id}   // AI 요소 등장 연출이 선과 함께 라벨도 늦게 보이게 (utils/appearAnimation)
+        data-edge-label={id}   // 요소 등장 연출이 선과 함께 라벨도 늦게 보이게 (utils/appearAnimation)
         onClick={(e) => {
           e.stopPropagation();
           if (!editing) selectEdge();
@@ -316,7 +315,7 @@ function LabeledEdge({
       : getSmoothStepPath({
         sourceX, sourceY, sourcePosition,
         targetX, targetY, targetPosition,
-        // 꺾여 나가는 거리 — AI 와이어프레임은 화살표마다 다르게 줘서 위·아래로 돌아가는 선끼리 겹치지 않게
+        // 꺾여 나가는 거리 — 화살표마다 다르게 줄 수 있어서 위·아래로 돌아가는 선끼리 겹치지 않게
         borderRadius: 0, offset: (data as EdgeData | undefined)?.stepOffset ?? 24,
       });
 
@@ -2006,7 +2005,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
 
   // 프레임 & 문서 컨테이너는 zIndex를 낮춰 안에 있는 노드가 클릭될 수 있게 보정
   // 그 외 도형은 생성 순서대로 쌓임 (먼저 만든 도형이 아래) → 예전에 낮춰 저장된 zIndex는 0으로 복구
-  //   부모 프레임이 자식보다 뒤에 저장된 캔버스(예전 AI 와이어프레임)도 불러올 때 순서를 바로잡음
+  //   부모 프레임이 자식보다 뒤에 저장된 캔버스도 불러올 때 순서를 바로잡음
   const normalizedNodes = placeFramesFirst(cleanedNodes).map((n) => {
     const isLowZ = n.data?.shape === 'frame' || !!n.data?.isDocContainer;
     if (!isLowZ) return (n.zIndex ?? 0) < 0 ? { ...n, zIndex: 0 } : n;
@@ -2015,7 +2014,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
     return { ...n, zIndex: -Math.ceil(w * h / 100) };
   });
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(normalizedNodes);
-  // 예전 AI 연결선은 화살표 종류(type)가 빠진 채 저장돼 화살표 머리가 안 보였음 → 닫힌 화살표로 채움
+  // 화살표 종류(type)가 빠진 채 저장된 연결선은 화살표 머리가 안 보였음 → 닫힌 화살표로 채움
   const withMarkerType = (m: AppEdge['markerEnd']) =>
     m && typeof m === 'object' && !m.type ? { ...m, type: MarkerType.ArrowClosed } : m;
   const normalizedEdges = initialEdges.map((e) => {
@@ -2495,7 +2494,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
   const isLocked       = useCanvasStore((s) => s.isLocked);
   const clearSelectedDocElement  = useCanvasStore((s) => s.clearSelectedDocElement);
 
-  // AI가 추가 요청한 노드/엣지를 캔버스에 반영 — 빈 자리를 찾아 놓고, 차례로 떠오르게 연출
+  // 템플릿 등으로 한꺼번에 들어온 노드/엣지를 캔버스에 반영 — 빈 자리를 찾아 놓고, 차례로 떠오르게 연출
   useEffect(() => {
     if (pendingNodes.length === 0) return;
 
@@ -2513,10 +2512,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
           y: (container.height / 2 - viewport.y) / viewport.zoom,
         }
       : { x: 0, y: 0 };
-    // AI 결과물(PRD·화면·ERD 등)은 종류별 줄로 — 그 밖은 기존 묶음 오른쪽 (utils/aiRows)
-    const row = clusterRow(ordered);
-    const rowSpot = row ? rowTopLeft(existingNodes, row) : null;
-    const preferredTopLeft = rowSpot ?? (existingBounds
+    const preferredTopLeft = existingBounds
       ? {
           x: existingBounds.x + existingBounds.w + 96,
           y: center.y - (clusterBounds?.h ?? 0) / 2,
@@ -2524,7 +2520,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
       : {
           x: center.x - (clusterBounds?.w ?? 0) / 2,
           y: center.y - (clusterBounds?.h ?? 0) / 2,
-        });
+        };
     const placedNodes = placeNodeCluster(ordered, existingNodes, preferredTopLeft, {
       padding: 40,
       step: 80,
@@ -2830,43 +2826,6 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
     }).sort((a, b) => (b.zIndex ?? 0) - (a.zIndex ?? 0))[0];
     return target ? { target, isPhoto, isScreen } : null;
   }, []);
-
-  // ── AI가 그린 아이폰 목업 채우기 — data.mockupFrom 화면이 그려지고 사진이 뜬 뒤 찍어서 넣음 (끌어 놓기와 같은 방법) ──
-  const mockupFilling = useRef(new Set<string>());
-  useEffect(() => {
-    const pending = nodes.filter((n) => n.data.shape === 'mockup' && n.data.mockupFrom && !mockupFilling.current.has(n.id));
-    pending.forEach((mock) => {
-      mockupFilling.current.add(mock.id);
-      setMockupBusy(mock.id);
-      const fromId = mock.data.mockupFrom as string;
-      setTimeout(async () => {
-        try {
-          const all = nodesRef.current;
-          const frame = all.find((n) => n.id === fromId);
-          if (!frame) throw new Error('screen not found');
-          const ids = new Set<string>([frame.id]);
-          for (let grew = true; grew;) {
-            grew = false;
-            all.forEach((n) => { if (n.parentId && ids.has(n.parentId) && !ids.has(n.id)) { ids.add(n.id); grew = true; } });
-          }
-          const fp = absPosOf(frame, all);
-          const { w: fw, h: fh } = sizeOf(frame, 390, 844);
-          const blob = await captureNodesImage({ x: fp.x, y: fp.y, width: fw, height: fh }, ids);
-          if (!blob) throw new Error('capture failed');
-          const img = await prepareCanvasImage(blob);
-          setNodes((prev) => (prev as AppNode[]).map((n) => (n.id === mock.id
-            ? { ...n, data: { ...n.data, imageUrl: img.src, mockupFrom: undefined } }
-            : n)));
-        } catch (err) {
-          console.error(err);
-          setNodes((prev) => (prev as AppNode[]).map((n) => (n.id === mock.id ? { ...n, data: { ...n.data, mockupFrom: undefined } } : n)));
-        } finally {
-          setMockupBusy(null);
-          mockupFilling.current.delete(mock.id);
-        }
-      }, 2500);   // 화면 요소·사진이 다 그려질 때까지 잠깐 기다림
-    });
-  }, [nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onNodeDrag = useCallback((ev: MouseEvent, draggedNode: AppNode) => {
     // 놓으면 들어갈 목업·이미지 칸을 강조
@@ -3463,7 +3422,7 @@ export const Canvas = ({ initialNodes, initialEdges, rightCollapsed, onCanvasCha
   // 슬래시 메뉴에서 고른 요소를 메뉴를 연 위치에 추가
   const handleSlashSelect = (item: SlashItem) => {
     if (!slashMenu) return;
-    // 요소 여러 개를 한꺼번에 놓는 항목(DB 설계 템플릿) — AI가 그린 것과 같은 길로 놓음 (빈 자리 찾기 · 화면 이동)
+    // 요소 여러 개를 한꺼번에 놓는 항목(DB 설계 템플릿) — 사이드바 템플릿과 같은 길로 놓음 (빈 자리 찾기 · 화면 이동)
     if (item.cluster) {
       const { nodes: cn, edges: ce } = item.cluster();
       setSlashMenu(null);

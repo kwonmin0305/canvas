@@ -1,32 +1,22 @@
 import type { AppNode, AppEdge, NodeType, NodeStatus } from '@/types';
-import { MarkerType } from '@xyflow/react';
 import { tr } from '@/lib/i18n';
 
 // ── 초기 노드 데이터 (React Flow 포맷) ─────────────────────────
-// 새 프로젝트 첫 화면: 손글씨 인사 글상자 하나 — 아래 줄(subtitle)은 작고 연한 슬래시 메뉴 안내
+// 첫 화면: 손글씨 인사 글상자 하나 ('안녕하세요')
 // 글자 크기 = 높이 × fontScale → 48px
 const WELCOME_W = 300;
-const WELCOME_H = 104;
+const WELCOME_H = 72;
 export const INITIAL_NODES: AppNode[] = [
   {
     id: 'welcome', type: 'custom', position: { x: -WELCOME_W / 2, y: -WELCOME_H / 2 },
     width: WELCOME_W, height: WELCOME_H, zIndex: 0,
     data: {
-      title: tr('안녕하세요', 'Hello'), subtitle: tr('/를 눌러 명령어를 사용하세요.', 'Press / for commands.'), icon: '', type: 'service', status: 'none',
+      title: tr('안녕하세요', 'Hello'), subtitle: '', icon: '', type: 'service', status: 'none',
       shape: 'text', width: WELCOME_W, height: WELCOME_H,
       bgColor: 'transparent', strokeColor: 'transparent', fontScale: 48 / WELCOME_H, fontWeight: 'normal',
       fontFamily: 'handwriting',
     },
   },
-];
-
-// ── 초기 엣지 데이터 (화살표 기본값 포함) ─────────────────────
-const EC = '#94a3b8';
-export const INITIAL_EDGES: AppEdge[] = [
-  { id: 'e-client-gw', source: 'n-client', target: 'n-gw',     sourceHandle: 'right', targetHandle: 'left', type: 'smoothstep', style: { strokeWidth: 1.5, stroke: EC }, markerEnd: { type: MarkerType.ArrowClosed, color: EC }, data: { arrowType: 'end', strokeColor: EC } },
-  { id: 'e-gw-auth',   source: 'n-gw',     target: 'n-auth',   sourceHandle: 'right', targetHandle: 'left', type: 'smoothstep', style: { strokeWidth: 1.5, stroke: EC }, markerEnd: { type: MarkerType.ArrowClosed, color: EC }, data: { arrowType: 'end', strokeColor: EC } },
-  { id: 'e-gw-worker', source: 'n-gw',     target: 'n-worker', sourceHandle: 'right', targetHandle: 'left', type: 'smoothstep', style: { strokeWidth: 1.5, stroke: EC }, markerEnd: { type: MarkerType.ArrowClosed, color: EC }, data: { arrowType: 'end', strokeColor: EC } },
-  { id: 'e-worker-db', source: 'n-worker', target: 'n-db',     sourceHandle: 'right', targetHandle: 'left', type: 'smoothstep', style: { strokeWidth: 1.5, stroke: EC }, markerEnd: { type: MarkerType.ArrowClosed, color: EC }, data: { arrowType: 'end', strokeColor: EC } },
 ];
 
 // ── 노드 타입별 색상 ─────────────────────────────────────────

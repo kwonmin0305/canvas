@@ -2852,7 +2852,7 @@ function DocPageShape({ data, id, width, height }: { data: NodeData; id: string;
   const [isEmpty, setIsEmpty] = useState(!((data.docPageText as string | undefined) ?? ''));
 
   // 저장된 글 → 편집 영역. 서식 있는 HTML(docPageHtml)이 글(docPageText)과 맞을 때만 쓰고,
-  // AI 등이 글만 바꿨으면 글로 다시 채움. 내가 방금 저장한 내용이면 건드리지 않음 (커서 유지)
+  // 바깥에서 글만 바꿨으면 글로 다시 채움. 내가 방금 저장한 내용이면 건드리지 않음 (커서 유지)
   const lastSavedHtml = useRef<string | null>(null);
   useEffect(() => {
     const el = editorRef.current;
@@ -4743,7 +4743,7 @@ function TableShape({ data, id, width, height, selected }: { data: NodeData; id:
             fontFamily: 'inherit',
           }}
         >
-          {/* 열 너비(%) — AI가 만든 표(PRD·API 명세)처럼 열마다 넓이가 달라야 할 때. 열 수가 바뀌면 다시 똑같이 나눔 */}
+          {/* 열 너비(%) — 열마다 넓이가 달라야 할 때. 열 수가 바뀌면 다시 똑같이 나눔 */}
           {Array.isArray(data.tableColWidths) && (data.tableColWidths as number[]).length === cols && (
             <colgroup>
               {(data.tableColWidths as number[]).map((w, i) => <col key={i} style={{ width: `${w}%` }} />)}
@@ -5242,7 +5242,7 @@ function ShapeWrapper({ shape, color, data, id, width, height, selected }: {
 }
 
 // ── 와이어프레임 화면 프레임 크기 조절 → 안의 요소도 같은 비율로 ──────────
-//   AI가 만든 화면(data.wire가 있는 프레임)은 한 장의 화면이라, 줄이고 늘리면 내용 전체가 같이 커지고 작아져야 함
+//   화면 프레임(data.wire가 있는 프레임)은 한 장의 화면이라, 줄이고 늘리면 내용 전체가 같이 커지고 작아져야 함
 //   끌기 시작할 때 자손(자식·손자…)을 그대로 떠 두고, 매번 그 원본 × 배율로 다시 계산 → 오차가 쌓이지 않음
 const isWireScreen = (data: NodeData) => data.shape === 'frame' && !!data.wire;
 

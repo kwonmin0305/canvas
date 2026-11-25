@@ -1,13 +1,12 @@
 // ═══════════════════════════════════════════════════════════
 // 📁 lib/erd/index.ts
-// DB 설계(ERD) 공용 로직 — 화면(Entity.tsx · ErdEdge.tsx) · AI 도구(create_erd) · 템플릿이 같이 씀
+// DB 설계(ERD) 공용 로직 — 화면(Entity.tsx · ErdEdge.tsx) · 템플릿이 같이 씀
 //
 //   원본은 캔버스 하나뿐: 테이블 = entity 노드(data.title · data.columns), 관계 = 'erd' 엣지
 //     엣지는 "참조하는 컬럼(FK) → 참조되는 컬럼" 방향, 핸들 id에 컬럼 id가 들어 있음 (col-<컬럼id>-l|r)
 //   스키마(JSON)는 따로 저장하지 않고 필요할 때 캔버스에서 뽑음 (canvasToSchema)
 //
 //   buildErd        — 테이블 목록 → 프레임 하나 + 테이블 노드 + 관계선 (좌표는 여기서 계산)
-//   applyErdUpdate  — AI가 다시 보낸 스키마로 기존 ERD를 고침 (같은 이름 테이블은 자리 그대로)
 //   canvasToSchema  — 캔버스 → 테이블 목록
 //   schemaToSql     — 테이블 목록 → CREATE TABLE 문
 // ═══════════════════════════════════════════════════════════
@@ -34,21 +33,6 @@ export const ERD_TYPES = [
 const TYPE_LABEL = new Map<string, string>(ERD_TYPES.map((t) => [t.type, t.label]));
 export const typeLabel = (type: string, real: boolean) => (real ? type : TYPE_LABEL.get(type) ?? type);
 
-const TYPE_ALIAS: Record<string, string> = {
-  uuid: 'uuid',
-  text: 'text', varchar: 'text', char: 'text', string: 'text', citext: 'text', 'character varying': 'text',
-  int: 'int', integer: 'int', bigint: 'int', smallint: 'int', serial: 'int', bigserial: 'int', number: 'int', int4: 'int', int8: 'int',
-  numeric: 'numeric', decimal: 'numeric', float: 'numeric', double: 'numeric', real: 'numeric', money: 'numeric', 'double precision': 'numeric',
-  bool: 'bool', boolean: 'bool',
-  timestamptz: 'timestamptz', timestamp: 'timestamptz', datetime: 'timestamptz',
-  date: 'date',
-  json: 'jsonb', jsonb: 'jsonb',
-};
-// AI·붙여넣기로 들어온 타입 이름을 위 목록으로 맞춤 — 모르는 타입은 그대로 둠
-export const normalizeType = (raw: unknown): string => {
-  const t = (typeof raw === 'string' ? raw : '').trim().toLowerCase().replace(/\(.*\)/, '').trim();
-  return TYPE_ALIAS[t] ?? (t.slice(0, 24) || 'text');
-};
 
 // ── 컬럼 핸들 id ─────────────────────────────────────────────
 export const colHandle = (colId: string, side: 'l' | 'r') => `col-${colId}-${side}`;
@@ -62,43 +46,13 @@ export const newColumnId = () => `c${Date.now().toString(36)}${(colSeq++).toStri
 export const newColumn = (patch: Partial<EntityColumn> = {}): EntityColumn =>
   ({ id: newColumnId(), name: '', type: 'text', ...patch });
 
-// ── 스키마 (AI · 템플릿 · 내보내기가 주고받는 모양) ──────────
+// ── 스키마 (템플릿 · 내보내기가 주고받는 모양) ──────────
 export interface ErdColumnInput {
   name: string; type: string;
   pk?: boolean; nullable?: boolean; unique?: boolean; note?: string; default?: string;
   ref?: string;   // "테이블.컬럼" — 이 컬럼이 가리키는 다른 테이블의 컬럼
 }
 export interface ErdTableInput { name: string; columns: ErdColumnInput[] }
-
-const MAX_TABLES = 30;
-const MAX_COLUMNS = 40;
-const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
-
-// AI가 준 값 정리 — 이름 없는 테이블·컬럼, 겹치는 이름은 뺌
-export function sanitizeTables(raw: unknown): ErdTableInput[] {
-  const seen = new Set<string>();
-  return (Array.isArray(raw) ? raw : []).slice(0, MAX_TABLES).flatMap((t: Record<string, unknown>): ErdTableInput[] => {
-    const name = str(t?.name, 60);
-    if (!name || seen.has(name.toLowerCase())) return [];
-    seen.add(name.toLowerCase());
-    const colSeen = new Set<string>();
-    const columns = (Array.isArray(t.columns) ? t.columns : []).slice(0, MAX_COLUMNS).flatMap((c: Record<string, unknown>): ErdColumnInput[] => {
-      const cn = str(c?.name, 60);
-      if (!cn || colSeen.has(cn.toLowerCase())) return [];
-      colSeen.add(cn.toLowerCase());
-      return [{
-        name: cn, type: normalizeType(c.type),
-        ...(c.pk === true && { pk: true }),
-        ...(c.nullable === true && c.pk !== true && { nullable: true }),
-        ...(c.unique === true && { unique: true }),
-        ...(str(c.note, 80) && { note: str(c.note, 80) }),
-        ...(str(c.default, 80) && { default: str(c.default, 80) }),
-        ...(str(c.ref, 130) && { ref: str(c.ref, 130) }),
-      }];
-    });
-    return columns.length ? [{ name, columns }] : [];
-  });
-}
 
 // ── 글자 너비 어림 → 카드 너비 ───────────────────────────────
 const charW = (c: string, px: number) => ((c.codePointAt(0) ?? 0) >= 0x1100 ? px : c === ' ' ? px * 0.3 : px * 0.58);
@@ -277,74 +231,6 @@ export function erdScope(nodes: AppNode[], id: string): { frame?: AppNode; ids: 
   const frameId = me?.data.shape === 'frame' ? me.id : me?.parentId;
   const frame = frameId ? nodes.find((n) => n.id === frameId) : undefined;
   return { frame, ids: new Set(nodes.filter((n) => n.data.shape === 'entity' && n.parentId === frameId).map((n) => n.id)) };
-}
-
-// AI가 읽는 글 — "users: id uuid PK, email text 필수 …"
-export function entityText(n: AppNode, nodes: AppNode[], edges: AppEdge[]): string {
-  const [t] = canvasToSchema(nodes, edges, new Set([n.id]));
-  if (!t) return '';
-  return [`테이블 ${t.name}`, ...t.columns.map((c) => [
-    `  ${c.name} ${c.type}`, c.pk && 'PK', c.unique && 'unique', c.nullable && 'nullable',
-    c.ref && `→ ${c.ref}`, c.note && `(${c.note})`,
-  ].filter(Boolean).join(' '))].join('\n');
-}
-
-// ── AI 수정 — 스키마 전체를 다시 받아 기존 ERD에 반영 ────────
-//   같은 이름 테이블: 자리·너비·id 그대로, 컬럼만 바꿈 (같은 이름 컬럼은 id 유지)
-//   새 테이블: 오른쪽 빈 곳에 세로로 / 빠진 테이블: 지움 / 관계선: 새로 그림
-export function applyErdUpdate(
-  nodes: AppNode[], edges: AppEdge[], targetId: string, input: ErdTableInput[], title?: string,
-): { nodes: AppNode[]; edges: AppEdge[] } | null {
-  if (!input.length || !nodes.some((n) => n.id === targetId)) return null;
-  const { frame, ids } = erdScope(nodes, targetId);
-  const old = new Map(nodes.filter((n) => ids.has(n.id)).map((n) => [(n.data.title || '').trim().toLowerCase(), n]));
-  const ts = Date.now();
-  const tables = toBuilt(input);
-
-  let right = 0, top = Infinity;
-  old.forEach((n) => {
-    right = Math.max(right, n.position.x + ((n.data.width as number | undefined) ?? ENTITY.W));
-    top = Math.min(top, n.position.y);
-  });
-  if (!old.size) { right = PAD - COL_GAP; top = PAD + TITLE_H; }
-  let newY = top;
-
-  const kept = new Set<string>();
-  const made: AppNode[] = tables.map((t, ti) => {
-    const prev = old.get(t.name.toLowerCase());
-    if (prev) {
-      kept.add(prev.id);
-      const prevCols = new Map((prev.data.columns ?? []).map((c) => [c.name.toLowerCase(), c.id]));
-      t.columns = t.columns.map((c) => ({ ...c, id: prevCols.get(c.name.toLowerCase()) ?? c.id }));
-      const h = entityHeight(t.columns.length);
-      const w = Math.max((prev.data.width as number | undefined) ?? ENTITY.W, entityWidth(t.name, t.columns));
-      return { ...prev, width: w, height: h, measured: undefined, data: { ...prev.data, title: t.name, columns: t.columns, width: w, height: h } };
-    }
-    const node = buildEntityNode(`erd-${ts}-${ti}`, t.name, t.columns, { x: right + COL_GAP, y: newY }, frame ? { parentId: frame.id } : {});
-    newY += entityHeight(t.columns.length) + ROW_GAP;
-    return node;
-  });
-  const idOf = (ti: number) => made[ti].id;
-
-  const gone = new Set([...ids].filter((id) => !kept.has(id)));
-  let next = nodes.filter((n) => !gone.has(n.id)).map((n) => made.find((m) => m.id === n.id) ?? n);
-  next = [...next, ...made.filter((m) => !kept.has(m.id))];
-
-  // 프레임을 안의 테이블이 다 들어가게 넓힘
-  if (frame) {
-    let fw = (frame.data.width as number | undefined) ?? 0, fh = (frame.data.height as number | undefined) ?? 0;
-    made.forEach((m) => {
-      fw = Math.max(fw, m.position.x + ((m.data.width as number | undefined) ?? ENTITY.W) + PAD);
-      fh = Math.max(fh, m.position.y + ((m.data.height as number | undefined) ?? 0) + PAD);
-    });
-    next = next.map((n) => (n.id === frame.id
-      ? { ...n, width: fw, height: fh, measured: undefined, zIndex: -Math.ceil(fw * fh / 100), data: { ...n.data, width: fw, height: fh, ...(title && { title }) } }
-      : n));
-  }
-
-  const scoped = new Set([...ids, ...made.map((m) => m.id)]);
-  const others = edges.filter((e) => !(isErdEdge(e) && scoped.has(e.source) && scoped.has(e.target)) && !gone.has(e.source) && !gone.has(e.target));
-  return { nodes: next, edges: [...others, ...relationEdges(tables, idOf, (k) => `erd-edge-${ts}-${k}`)] };
 }
 
 // 자동 정렬 — 같은 묶음의 테이블을 다시 배치 (묶음의 왼쪽 위 자리는 그대로)

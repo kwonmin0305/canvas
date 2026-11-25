@@ -1,6 +1,6 @@
 // 문서 페이지(A4) 글쓰기 영역 — 워드처럼 "고른 글자만" 색을 바꾸기 위한 도우미
 //  · 페이지는 서식 있는 HTML(docPageHtml)과 순수 글(docPageText)을 함께 저장
-//    (AI·내보내기 등은 docPageText만 읽음)
+//    (내보내기 등은 docPageText만 읽음)
 //  · 속성 패널의 색 버튼은 applyDocSelectionColor 로 지금 고른 글자에만 색을 칠함
 
 import { useSyncExternalStore } from 'react';

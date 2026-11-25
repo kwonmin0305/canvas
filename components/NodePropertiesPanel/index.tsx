@@ -19,7 +19,6 @@ import {
 import { EntitySection } from '@/lib/erd/EntitySection';
 import { prepareCanvasImage } from '@/utils/canvasImage';
 import { groupIdOf, groupNodes, ungroupNodes } from '@/utils/group';
-import { WIRE_THEMES, WIRE_THEME_NAMES, applyWireTheme, wireBatchFrameIds } from '@/lib/wireframe/theme';
 import { tr } from '@/lib/i18n';
 
 
@@ -1237,33 +1236,6 @@ function NodePanel({ node, onHeaderMouseDown, dragging, onClose }: { node: AppNo
               />
             </div>
           </div>
-        )}
-
-        {/* AI가 만든 와이어프레임 화면 전용: 색 테마 — 같이 만든 화면들에 함께 적용 (디자인 입히기) */}
-        {d.shape === 'frame' && typeof d.wireTheme === 'string' && !textEditMode && (
-          <>
-            <div className="flex flex-col gap-2">
-              <SectionTitle>{tr('테마', 'Theme')}</SectionTitle>
-              <div className="grid grid-cols-8 gap-1">
-                {WIRE_THEME_NAMES.map(name => {
-                  const t = WIRE_THEMES[name];
-                  const on = d.wireTheme === name && !d.wireBrand;
-                  return (
-                    <button key={name} title={t.label}
-                      className={`h-7 ${BTN_BASE} ${on ? BTN_ON : BTN_IDLE}`}
-                      onClick={() => setNodes(nds => applyWireTheme(nds, wireBatchFrameIds(nds, id), name))}>
-                      <span className="w-3.5 h-3.5 rounded-full border border-[rgba(var(--ui-fg-rgb),0.25)]"
-                        style={{ background: name === 'wireframe' ? '#9ca3af' : name === 'dark' ? t.surface : t.primary }} />
-                    </button>
-                  );
-                })}
-              </div>
-              <span className="text-[12px] leading-relaxed text-[rgba(var(--ui-fg-rgb),0.45)]">
-                {tr('같이 만든 화면들에 함께 적용됩니다. 회색은 색 없는 와이어프레임입니다.', 'Applies to all screens made together. Gray is a colorless wireframe.')}
-              </span>
-            </div>
-            {SECTION_DIV}
-          </>
         )}
 
         {/* 기기 목업 전용: 방향 · 틀 색 · 화면 맞춤 · 그림자 · 화면 이미지 비우기 */}

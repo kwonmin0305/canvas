@@ -40,12 +40,3 @@ export const idbSet = async (key: string, value: unknown): Promise<void> => {
   });
 };
 
-export const idbDelete = async (key: string): Promise<void> => {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).delete(key);
-    tx.oncomplete = () => resolve();
-    tx.onerror    = () => reject(tx.error);
-  });
-};
