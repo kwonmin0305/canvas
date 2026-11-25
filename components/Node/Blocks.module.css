@@ -1,0 +1,362 @@
+/* ── Notion식 블록 편집기 (목록·콜아웃·페이지) ───────────────── */
+.editor {
+  position: relative;
+  line-height: 1.5;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 2px 0;
+}
+
+.marker {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5em;
+  user-select: none;
+}
+
+.bullet {
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+.number {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 글자 칸 — 보이지 않는 복사본이 높이를 정하고 입력창이 그 위에 겹침 (자동 높이) */
+.cell {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.cell > * {
+  grid-area: 1 / 1;
+}
+
+.text,
+.input {
+  min-height: 1.5em;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  caret-color: currentColor;
+}
+
+.input::placeholder,
+.hint {
+  color: currentColor;
+  opacity: 0.4;
+}
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.done .input {
+  text-decoration: line-through;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1.5px solid color-mix(in srgb, currentColor 55%, transparent);
+  border-radius: 3px;
+  background: transparent;
+  color: inherit; /* 테두리가 카드 글자색을 따라가게 (흰색이면 밝은 배경에서 안 보임) */
+  cursor: pointer;
+}
+
+.checkbox.checked {
+  border-color: #2383e2;
+  background: #2383e2;
+  color: #fff; /* 체크 표시만 흰색 */
+}
+
+.chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.chevron:hover,
+.iconBtn:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.chevron svg {
+  transition: transform 0.15s ease;
+}
+
+.chevron.open svg {
+  transform: rotate(90deg);
+}
+
+.emptyToggle {
+  padding: 2px 0;
+  opacity: 0.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.emptyToggle:hover {
+  opacity: 0.6;
+}
+
+/* ── 아이콘(이모지) 고르기 ── */
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.emojiPicker {
+  position: absolute;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(8, 30px);
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow);
+}
+
+.emojiPicker button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.emojiPicker button:hover {
+  background: var(--hover-bg);
+}
+
+.emojiRemove {
+  grid-column: 1 / -1;
+  width: auto !important;
+  height: 26px !important;
+  color: var(--text-secondary);
+  font-size: 12px !important;
+}
+
+/* ── 페이지 링크 (캔버스) ── */
+.pageLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+
+.pageTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  text-underline-offset: 3px;
+}
+
+/* ── 페이지 모달 ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 15, 15, 0.45);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 100%);
+  height: min(86vh, 100%);
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+}
+
+.modalBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0 10px 0 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.crumb {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background: var(--hover-bg);
+}
+
+.modalScroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.pageInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 708px;
+  margin: 0 auto;
+  padding: 48px 48px 0;
+  box-sizing: border-box;
+}
+
+.pageIcon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  font-size: 60px;
+}
+
+.addIcon {
+  align-self: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.pageInner:hover .addIcon,
+.addIcon:focus-visible {
+  opacity: 1;
+}
+
+.pageTitleInput {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pageTitleInput::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+.pageBody {
+  font-size: 16px;
+}
+
+/* 본문 아래 빈 곳 — 누르면 맨 끝에 새 줄 */
+.pageTail {
+  flex: 1;
+  min-height: 120px;
+  cursor: text;
+}
+
+/* 목록 노드 — 배경이 투명할 때 마우스를 올리면 연한 배경으로 영역 표시 */
+.listBox {
+  background: transparent;
+  transition: background 0.12s;
+}
+
+.listBox:hover {
+  background: rgba(var(--ui-fg-rgb), 0.05);
+}
+
+/* 목록 노드 — 비어 있을 때 아주 연한 바탕으로 "채울 칸" 표시 (마우스를 올리거나 편집 중이면 조금 진해짐)
+   배경색을 고르면 그 색(인라인 style)이 이김. 점선은 사용자가 고르는 윤곽선 스타일과 헷갈려서 쓰지 않음 */
+.emptyBox {
+  background: rgba(var(--ui-fg-rgb), 0.04);
+  transition: background 0.12s;
+}
+
+.emptyBox:hover,
+.emptyBox:focus-within {
+  background: rgba(var(--ui-fg-rgb), 0.07);
+}

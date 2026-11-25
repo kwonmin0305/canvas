@@ -1,0 +1,131 @@
+/* DB 테이블(ERD) 카드 — 색은 화면 모드(밝게/어둡게)를 따라감 */
+.card {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 1px var(--border-lighter), var(--shadow-sm);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', 'Noto Sans KR', sans-serif;
+  user-select: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 8px 8px 0 0;
+  background: var(--bg-tertiary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.headerIcon { flex: none; color: var(--text-tertiary); }
+.headerName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.placeholder { color: var(--text-muted); font-weight: 500; }
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-top: 1px solid var(--border-light);
+  box-sizing: border-box;
+  font-size: 12.5px;
+}
+.row:last-child { border-radius: 0 0 8px 8px; }
+.row:hover { background: var(--hover-bg); }
+.rowOn, .rowOn:hover { background: rgba(99, 102, 241, 0.14); }
+
+.marks { flex: none; display: flex; align-items: center; gap: 4px; width: 28px; }
+.name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.note { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text-tertiary); }
+.spacer { flex: 1 1 0; min-width: 0; }
+.type { flex: none; font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
+.typeReal { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 10.5px; }
+
+.input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 22px;
+  padding: 0 4px;
+  margin-left: -4px;
+  border: 1px solid #6366f1;
+  border-radius: 4px;
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font: inherit;
+}
+/* 이름 입력칸 — 글자 수만큼만 (style width), 설명 칸을 밀어내지 않게 줄어들 수 있음 */
+.nameInput { flex: 0 1 auto; font-weight: 500; }
+/* 설명 입력칸 — 설명 글자와 같은 크기 */
+.noteInput { flex: 1 1 0; margin-left: 0; font-size: 11px; color: var(--text-secondary); }
+
+/* 설명 없는 줄 — 마우스를 올리면 "+ 설명" */
+.addNote {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  padding: 1px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.row:hover .addNote { opacity: 1; }
+.addNote:hover { color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+
+.select {
+  flex: none;
+  height: 22px;
+  max-width: 108px;
+  border: 1px solid var(--border-lighter);
+  border-radius: 4px;
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+}
+.select:focus { border-color: #6366f1; }
+
+/* 컬럼 옆 연결 점 — 줄에 마우스를 올리거나 선을 끄는 동안 보임 */
+.dot {
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  background: var(--bg-primary) !important;
+  border: 1.5px solid #6366f1 !important;
+  border-radius: 50% !important;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  z-index: 10;
+}
+.dot::before { content: ''; position: absolute; inset: -7px; border-radius: 50%; }
+.row:hover .dot,
+.dot:global(.react-flow__handle-connecting),
+.dot:global(.react-flow__handle-valid) { opacity: 1; }
+.dot:hover,
+.dot:global(.react-flow__handle-valid) { background: #6366f1 !important; }
+
+/* 카드 아래 "+ 컬럼" — 고른 동안만 (카드 높이는 그대로) */
+.add {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px dashed var(--border-lighter);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.add:hover { color: #6366f1; border-color: #6366f1; }

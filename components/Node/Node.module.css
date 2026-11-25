@@ -1,0 +1,566 @@
+/* ── React Flow 핸들 ─────────────────────────────────────── */
+.wrapper {
+  position: relative;
+}
+
+.handle {
+  width: 14px !important;
+  height: 14px !important;
+  background: #ffffff !important;
+  border: 2px solid #94a3b8 !important;
+  border-radius: 50% !important;
+  opacity: 0;
+  transition: opacity 0.15s ease, border-color 0.15s ease, transform 0.15s ease, width 0.15s ease, height 0.15s ease;
+  z-index: 10;
+}
+
+/* 리사이즈 모드(노드 선택)에서 연결 핸들 비활성화 */
+.handleHidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 투명한 히트 영역 확장 — 실제 클릭 감지 범위를 36px로 넓힘 */
+.handle::before {
+  content: '';
+  position: absolute;
+  inset: -11px;
+  border-radius: 50%;
+}
+
+/* 핸들 직접 호버 시 크게 */
+.handle:hover {
+  width: 18px !important;
+  height: 18px !important;
+  background: #6366f1 !important;
+  border-color: #4f46e5 !important;
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 표 행 드래그 핸들 — 행 호버 시 표시 */
+tr:hover .rowDragHandle {
+  opacity: 1 !important;
+}
+
+/* 연결 드래그 중 다른 노드 핸들 강조 */
+.handle:global(.react-flow__handle-connecting) {
+  background: #22c55e !important;
+  border-color: #16a34a !important;
+  width: 18px !important;
+  height: 18px !important;
+  opacity: 1;
+}
+
+/* 연결 가능한 타겟 핸들 강조 */
+.handle:global(.react-flow__handle-valid) {
+  background: #22c55e !important;
+  border-color: #16a34a !important;
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 1;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25) !important;
+}
+
+/* ── 플레인 사각형 (rectangle) ──────────────────────────── */
+.shapeRect {
+  border-radius: 8px;
+  border: 1.5px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: grab;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.shapeRect:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ── 기본 카드 (card) — dark architecture style ─────────── */
+.card {
+  border-radius: 12px;
+  border: 1px solid #3a3a3a;
+  background: #242424;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 0.2s ease, border-color 0.15s ease;
+  cursor: grab;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.card:hover {
+  border-color: rgba(var(--ui-fg-rgb), 0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* 아이콘 영역 */
+.cardIconWrap {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* 라벨 텍스트 */
+.cardLabel {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 146px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  cursor: text;
+}
+
+/* 인라인 편집 input */
+.cardLabelInput {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #6366f1;
+  text-align: center;
+  outline: none;
+  width: 130px;
+  padding: 1px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* 텍스트 (document/note shape 에서 재사용) */
+.ntitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.nsub {
+  font-size: 10.5px;
+  color: #64748b;  /* 명암비 4.5 이상 (madia D1) */
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* 아이콘 영역 (document/note shape 에서 재사용) */
+.iconRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-right: 14px;
+}
+
+.iconWrap {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #94a3b8;
+}
+
+/* ── 선택 강조: JS overlay(CustomNode)로 통일 처리 ──────── */
+
+/* ── 도형: 원 ────────────────────────────────────────────── */
+.shapeCircle {
+  border-radius: 50%;
+  border: 2px solid;
+  width: 112px;
+  height: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 0, 0, 0.06);
+  cursor: grab;
+  transition: box-shadow 0.2s ease;
+}
+
+.shapeCircle:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* ── 도형: 마름모 ────────────────────────────────────────── */
+.shapeDiamondOuter {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shapeDiamondInner {
+  width: 86px;
+  height: 86px;
+  border: 2px solid;
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+}
+
+.shapeDiamondInner > * {
+  transform: rotate(-45deg);
+  text-align: center;
+  width: 64px;
+}
+
+/* ── 도형: 실린더 (DB) ───────────────────────────────────── */
+.shapeCylinder {
+  display: flex;
+  flex-direction: column;
+  width: 168px;
+  cursor: grab;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.cylinderTop {
+  height: 16px;
+  border: 1.5px solid;
+  border-radius: 50%;
+  margin-bottom: -8px;
+  position: relative;
+  z-index: 1;
+}
+
+.cylinderBody {
+  border: 1.5px solid;
+  border-top: none;
+  border-radius: 0 0 50% 50% / 0 0 14px 14px;
+  padding: 14px 12px 10px;
+}
+
+/* ── 도형: 육각형 ────────────────────────────────────────── */
+.shapeHexOuter {
+  width: 120px;
+  height: 104px;
+  position: relative;
+  cursor: grab;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+}
+
+.shapeHexOuter::before,
+.shapeHexOuter::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  width: 0;
+  height: 0;
+  border-left: 42px solid transparent;
+  border-right: 42px solid transparent;
+}
+
+.shapeHexOuter::before {
+  top: 0;
+  border-bottom: 24px solid currentColor;
+}
+
+.shapeHexOuter::after {
+  bottom: 0;
+  border-top: 24px solid currentColor;
+}
+
+.shapeHexInner {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 10px;
+}
+
+/* ── 도형: 문서 ──────────────────────────────────────────── */
+.shapeDocument {
+  border: 1.5px solid;
+  border-radius: 10px 10px 0 0;
+  padding: 11px 12px 18px 12px;
+  width: 172px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  position: relative;
+  cursor: grab;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.shapeDocument:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.shapeDocument::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+  height: 14px;
+  background: inherit;
+  border: inherit;
+  border-top: none;
+  border-radius: 0 0 50% 50% / 0 0 10px 10px;
+  clip-path: ellipse(52% 100% at 50% 100%);
+}
+
+/* ── 도형: 메모 ──────────────────────────────────────────── */
+.shapeNote {
+  border: 1.5px solid;
+  border-radius: 0 10px 10px 10px;
+  padding: 11px 12px 11px 12px;
+  width: 172px;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  cursor: grab;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.shapeNote::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 14px 14px 0;
+  border-color: transparent var(--bg-secondary) transparent transparent;
+}
+
+.shapeNote::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  bottom: -1px;
+  width: 4px;
+  border-radius: 12px 0 0 12px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* 원/마름모/육각형/실린더 내부 공통 텍스트는 card 내부가 아니므로 따로 */
+.shapeCircle .ntitle,
+.shapeDiamondInner .ntitle,
+.shapeHexInner .ntitle,
+.cylinderBody .ntitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.shapeCircle .nsub,
+.shapeDiamondInner .nsub,
+.shapeHexInner .nsub,
+.cylinderBody .nsub {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.shapeCircle .ntag,
+.shapeDiamondInner .ntag,
+.shapeHexInner .ntag,
+.cylinderBody .ntag {
+  display: inline-flex;
+  font-size: 9.5px;
+  font-weight: 500;
+  padding: 1.5px 6px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+
+.shapeCircle .nicon,
+.shapeDiamondInner .nicon,
+.shapeHexInner .nicon,
+.cylinderBody .nicon {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+/* ── 다크모드: card는 어두운 배경 유지, document/note는 흰색 유지 */
+:global(html.dark-mode) .card {
+  /* 인라인 스타일(패널 편집)이 덮어쓸 수 있도록 !important 제거 */
+  background: #242424;
+  border-color: #3a3a3a;
+}
+
+:global(html.dark-mode) .shapeDocument,
+:global(html.dark-mode) .shapeNote {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+:global(html.dark-mode) .shapeRect:not(.shapeTransparent):not(.shapeCustomBg) {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* bgColor가 명시적으로 설정된 도형 — 다크모드 재정의 제외 마커 클래스 */
+.shapeCustomBg {
+  /* marker only — prevents dark-mode CSS from overriding explicit bgColor */
+}
+
+.shapeTransparent {
+  background: transparent !important;
+}
+
+:global(html.dark-mode) .cylinderTop,
+:global(html.dark-mode) .cylinderBody {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+:global(html.dark-mode) .shapeCircle:not(.shapeTransparent):not(.shapeCustomBg) {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+:global(html.dark-mode) .shapeDiamondInner:not(.shapeTransparent):not(.shapeCustomBg) {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+:global(html.dark-mode) .shapeHexInner:not(.shapeCustomBg) {
+  background: #ffffff !important;
+}
+
+:global(html.dark-mode) .ntitle {
+  color: #0f172a !important;
+}
+
+:global(html.dark-mode) .nsub {
+  color: #64748b !important;
+}
+
+
+/* ── 도형: 프레임 ────────────────────────────────────────── */
+.shapeFrame {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.frameLabel {
+  position: absolute;
+  top: -26px;
+  left: 0;
+  height: 26px;
+  width: max-content;      /* 프레임보다 길어져도 줄바꿈 없이 한 줄로 */
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  pointer-events: all;
+}
+
+.frameLabel > * { flex-shrink: 0; }
+
+.frameLabelText {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6366f1;
+  white-space: nowrap;
+  cursor: text;
+  user-select: none;
+  padding: 0 4px;
+}
+
+.frameLabelInput {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6366f1;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.45);   /* 입력 중임을 알리는 얇은 테두리 */
+  padding: 1px 4px;
+  font-family: inherit;
+}
+
+.frameLabelInput::placeholder {
+  color: #6366f1;
+  opacity: 0.45;
+  font-weight: 500;
+}
+
+/* ── Arch diagram 인터랙티브 래퍼 ────────────────────────── */
+.archInteractive {
+  position: relative;
+  border-radius: 8px;
+  transition: outline 0.1s;
+  overflow: visible !important;
+}
+
+.archInteractiveSelected {
+  /* 윤곽선 없음 — 핸들 표시만으로 선택 표시 */
+}
+
+/* ── Arch card 연결 핸들 (캔버스 핸들과 동일 스타일) ──────── */
+.archHandle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid #94a3b8;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.archHandleTop    { top: -5px;    left: 50%; transform: translateX(-50%); }
+.archHandleBottom { bottom: -5px; left: 50%; transform: translateX(-50%); }
+.archHandleLeft   { left: -5px;   top: 50%;  transform: translateY(-50%); }
+.archHandleRight  { right: -5px;  top: 50%;  transform: translateY(-50%); }
+
+.archInteractive:hover .archHandle,
+.archInteractiveSelected .archHandle {
+  opacity: 1;
+  border-color: #6366f1;
+}
+
+
+
+
+

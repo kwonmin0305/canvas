@@ -1,0 +1,98 @@
+/* ── 발표 모드 (Presenter.tsx) ───────────────────────────── */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  overflow: hidden;
+  background: #000;
+  user-select: none;
+}
+
+/* 슬라이드 배경이 투명이면 화면 바탕색이 비침 (라이트·다크 자동) */
+.flow {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-primary);
+}
+
+/* 맨 위 투명 막 — 클릭을 받아 다음 장으로, 슬라이드 바깥은 구멍(hole)의 큰 그림자로 검게 */
+.cover {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: default;
+}
+
+.hole {
+  position: absolute;
+  box-shadow: 0 0 0 200vmax #000;
+  pointer-events: none;
+}
+
+.idle .cover { cursor: none; }
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #ddd;
+  font-size: 18px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.hint {
+  display: block;
+  margin-top: 8px;
+  color: #888;
+  font-size: 13px;
+}
+
+/* 아래 가운데 조작 버튼 */
+.hud {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(30, 30, 30, 0.85);
+  color: #eee;
+  transition: opacity 0.25s;
+}
+
+.idle .hud:not(:hover) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hud button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hud button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+.hud button:disabled { opacity: 0.3; cursor: default; }
+
+.count {
+  min-width: 56px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
