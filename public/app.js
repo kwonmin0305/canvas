@@ -273,6 +273,23 @@
       listEl.appendChild(head);
     }
 
+    // 맨 앞: 새 프로젝트 만들기 (목록이 비었을 땐 아래 안내의 버튼을 씀)
+    if (list.length) {
+      var add = document.createElement('button');
+      add.type = 'button';
+      add.className = state.view === 'grid' ? 'add-card' : 'add-row';
+      var plus = document.createElement('span');
+      plus.className = 'add-card__plus';
+      plus.appendChild(icon([['path', { d: 'M12 5v14M5 12h14' }]]));
+      var label = document.createElement('span');
+      label.className = 'add-card__label';
+      label.textContent = '새 프로젝트';
+      add.appendChild(plus);
+      add.appendChild(label);
+      add.addEventListener('click', createProject);
+      listEl.appendChild(add);
+    }
+
     list.forEach(function (p, i) {
       var a = document.createElement('a');
       a.href = 'board/?id=' + encodeURIComponent(p.id);

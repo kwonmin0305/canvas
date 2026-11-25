@@ -298,7 +298,53 @@ html.dark-mode .seg__btn.is-on { background: var(--line-strong); }
 .mini--star.is-on svg { fill: currentColor; }
 @media (hover: none) { .mini--star { opacity: 1; } }
 
+/* 새 프로젝트 카드 (맨 앞) */
+.add-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 200px;
+  border-radius: var(--radius);
+  border: 1.5px dashed var(--line-strong);
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 650;
+  font-size: 14px;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.add-card:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.add-card__plus {
+  width: 48px; height: 48px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(.2,.8,.2,1);
+}
+.add-card:hover .add-card__plus { transform: scale(1.08) rotate(90deg); }
+.add-card__plus svg { width: 20px; height: 20px; stroke-width: 2; }
+
 /* ── 목록 보기 ────────────────────────────────────────── */
+.add-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 12px 10px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 650;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.add-row:hover { background: var(--accent-soft); color: var(--accent); }
+.add-row .add-card__plus { width: 88px; height: auto; aspect-ratio: 16 / 10; border-radius: 8px; border-style: dashed; box-shadow: none; background: transparent; }
+.add-row + .row { border-top: 0; }
 .projects--list {
   display: flex;
   flex-direction: column;
